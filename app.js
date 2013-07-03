@@ -33,6 +33,37 @@ Ext.application({
   }
 });
 Ext.onReady(function() {
+  var timeUrl = 'data/time.json';
+  Ext.override(CIIS.view.util.DatetimePicker, {
+    url: timeUrl
+  });
+
+  Ext.override(Ext.picker.Date, {
+    selectToday: function() {
+      var me = this,
+        btn = me.todayBtn,
+        handler = me.handler;
+
+      if (btn && !btn.disabled) {
+        Ext.Ajax.request({
+          url: timeUrl,
+          success: function(response) {
+            var data = response.responseText;
+            data = Ext.JSON.decode(data);
+            var time = new Date(data.time);
+
+            me.setValue(Ext.Date.clearTime(time));
+            me.fireEvent('select', me, me.value);
+            if (handler) {
+              handler.call(me.scope || me, me, me.value);
+            }
+            me.onSelect();
+          }
+        });
+      }
+      return me;
+    }
+  });
 
   Ext.override(Ext.picker.Date, {
     onRender: function(container, position) {

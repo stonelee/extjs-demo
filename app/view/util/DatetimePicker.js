@@ -15,6 +15,7 @@ Ext.define('CIIS.view.util.DatetimePicker', {
   todayText: '当前时间',
   ariaTitle: '',
   longDayFormat: 'Y-m-d',
+  url: '',
 
   initComponent: function() {
     this.callParent();
@@ -114,8 +115,23 @@ Ext.define('CIIS.view.util.DatetimePicker', {
   },
 
   selectToday: function() {
+    var me = this;
+    if (this.url) {
+      Ext.Ajax.request({
+        url: this.url,
+        success: function(response){
+          var data = response.responseText;
+          data = Ext.JSON.decode(data);
+          me._selectToday(new Date(data.time));
+        }
+      });
+    } else {
+      this._selectToday(new Date());
+    }
+  },
+
+  _selectToday: function(time) {
     var me = this,
-      time = new Date(),
       btn = me.todayBtn,
       handler = me.handler;
 
